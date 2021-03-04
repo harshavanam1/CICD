@@ -149,7 +149,7 @@ output application/json
 ---
 {
   status: "Successfully",
-  Message: "Successfully Data Has Been Inserted",
+  Message: "Successful Data Has Been Inserted",
   Read: Mule::p('http.status')
 }]]></ee:set-payload>
             </ee:message>
