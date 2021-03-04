@@ -154,6 +154,6 @@ output application/json
 }]]></ee:set-payload>
             </ee:message>
         </ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="44114480-bab7-45b0-908b-b4f56e9ae931" message='Method is #[flow.name[5 to 14]] --  payload is #[payload] -- variable is #[vars.data]' />
+		<logger level="INFO" doc:name="Logger" doc:id="44114480-bab7-45b0-908b-b4f56e9ae931" message='Method is #[flow.name[5 to 14]] ---...  payload is #[payload] -- variable is #[vars.data]' />
     </flow>
 </mule>
