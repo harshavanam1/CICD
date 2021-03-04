@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="fa220078-9d15-4eb7-befc-95ca3ff8e599" />
+	<sub-flow name="utilSub_Flow" doc:id="73dcbf07-1efc-4423-a9b7-7a78f7245734" >
+		<validation:is-not-null doc:name="Is not null" doc:id="d8d535aa-eb2e-4eb7-9d2f-1c534cd05971" value="#[payload.contact]"/>
+	</sub-flow>
+</mule>

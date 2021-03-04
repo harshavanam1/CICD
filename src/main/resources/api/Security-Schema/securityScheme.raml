@@ -1,0 +1,19 @@
+#%RAML 1.0 SecurityScheme
+type: x-custom
+description: This is security schema
+describedBy:
+  headers:
+    client id:
+      minLength: 2
+      maxLength: 5
+      pattern: string
+      required: true
+    client secret:
+      minLength: 2
+      maxLength: 5
+      pattern: string
+      required: true  
+
+
+      
+
