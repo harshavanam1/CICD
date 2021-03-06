@@ -15,7 +15,13 @@
             <SizeBasedTriggeringPolicy size="10 MB" />
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
+        <Http name="Splunk" url="http://localhost:8088/services/collector/raw">
+	<Property name="Authorization" value="Splunk a668bc46-2a79-459c-9a11-463dd64c8e22"></Property>
+	<PatternLayout pattern="[ %d %t]  %-5p %c{1} %X :: %m%n"></PatternLayout>
+</Http>
     </Appenders>
+    
+    
     <Loggers>
         
         <!-- Http Logger shows wire traffic on DEBUG. -->
@@ -28,6 +34,7 @@
  
         <AsyncRoot level="INFO">
             <AppenderRef ref="file" />
+            <AppenderRef ref="Splunk" />
         </AsyncRoot>
     </Loggers>
 </Configuration>
