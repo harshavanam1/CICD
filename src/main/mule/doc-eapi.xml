@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
     <http:listener-config name="doc-eapi-httpListenerConfig">
         <http:listener-connection host="${http.host}" port="${http.port}" />
     </http:listener-config>
     <apikit:config name="doc-eapi-config" api="doc-eapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <configuration-properties doc:name="Configuration properties" doc:id="7e1bc3f2-ad38-401e-91e5-9c5ce2c6da21" file="local.yaml" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="82e909b8-9bee-473f-8d8a-35c2c09e6ff1" >
+		<db:mssql-connection host="${database.host}" port="${database.port}" user="${database.username}" password="${database.password}" databaseName="${database.db}" />
+	</db:config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="3ca97d8b-550b-4847-b38a-c8e85589113e" basePath="/api/timezone" >
+		<http:request-connection host="worldtimeapi.org" />
+	</http:request-config>
 	<flow name="doc-eapi-main">
         <http:listener config-ref="doc-eapi-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -125,23 +133,58 @@ output application/json
         </error-handler>
     </flow>
     <flow name="get:\v1\knovos:doc-eapi-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
+        <ee:transform doc:name="Transform Message" doc:id="d54eaf78-efa8-4544-ad21-97afb6b18956" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
 ---
 {
-  status: "Successfully",
-  Message: "Successfully Data Has Been Inserted"
+	"Name":"HARSHA",
+	"ID":"502",
+	"contact":"9052161613"
 }]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="cefbb7ae-bdc8-47ad-a1de-41474aa89a06" >
+			<when expression='#[flow.name[4 to 13]=="\v1\knovos"]'>
+				<choice doc:name="Choice" doc:id="f2659d82-0167-4030-ae43-7d05c0d0437b" >
+					<when expression='#[payload.ID=="502"]'>
+						<http:request method="GET" doc:name="Request" doc:id="ae1310e3-b140-4d89-8b8c-3de63bea5e98" config-ref="HTTP_Request_configuration" path="/asia/kolkata"/>
+					</when>
+					<otherwise >
+						<set-payload value='#["child choice payload"]' doc:name="Set Payload" doc:id="01058bb8-b64b-4e53-aadd-f12956d1caaa" />
+					</otherwise>
+				</choice>
+			</when>
+			<otherwise >
+				<set-payload value='#["parent choice"]' doc:name="Set Payload" doc:id="e3931fdd-4e59-4808-8825-e9d78250693d" />
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="8c3ff7c8-c8f6-49f0-a263-d3378c2c93df" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="bec529bc-55ec-4cfd-90ae-1976d3d52234" message="choice-------#[payload]"/>
     </flow>
     <flow name="post:\v2\knovos:application\json:doc-eapi-config">
         <set-variable value="#[payload]" doc:name="Set Variable" doc:id="4f546a61-bbac-45d2-8b4e-6f41e92ca5af" variableName="data"/>
-		<async doc:name="Async" doc:id="3619113a-925d-4a47-8b77-45c4d512cda7" >
-			<flow-ref doc:name="Flow Reference" doc:id="1926fbcf-d74f-443f-86e8-3b64b781db85" name="utilSub_Flow" />
-		</async>
+		<db:insert doc:id="cca07a12-9cf6-4517-87f2-b9468f87ef36" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into flight (airlineName,code,departureDate,destination,emptySeats,origin,planeType,price)values(:airlineName,:code,:departureDate,:destination,:emptySeats,:origin,:planeType,:price)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	airlineName:payload.airlineName,
+	code:payload.code,
+	departureDate:payload.departureDate,
+	destination:payload.destination,
+	emptySeats:payload.emptySeats,
+	origin:payload.origin,
+	planeType:payload.planeType,
+	price:payload.price
+}]]]></db:input-parameters>
+		</db:insert>
 		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
@@ -154,6 +197,6 @@ output application/json
 }]]></ee:set-payload>
             </ee:message>
         </ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="44114480-bab7-45b0-908b-b4f56e9ae931" message='Method is #[flow.name[5 to 14]] ---  payload is #[payload] -- variable is #[vars.data]' />
+		<logger level="INFO" doc:name="Logger" doc:id="44114480-bab7-45b0-908b-b4f56e9ae931" message='Method is #[flow.name[5 to 14]] -- payload is #[payload] -- variable is #[vars.data]' />
     </flow>
 </mule>
