@@ -1,5 +1,11 @@
 http:
   host: "localhost"
   port: "8081"
+database:
+  host: "localhost"
+  port: "1433"
+  username: "sa"
+  password: "harshanani33"
+  db: "Flights"  
   
   
